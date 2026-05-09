@@ -9,6 +9,11 @@ interface TranscriptionState {
   child: Child | null;
 }
 
+interface StartOptions {
+  config: WhisperConfig;
+  pythonPath?: string | null;
+}
+
 export function useTranscription() {
   const [state, setState] = useState<TranscriptionState>({
     status: "idle",
@@ -16,7 +21,7 @@ export function useTranscription() {
     child: null,
   });
 
-  const start = useCallback(async (config: WhisperConfig) => {
+  const start = useCallback(async ({ config, pythonPath }: StartOptions) => {
     let args: string[];
     try {
       args = await invoke<string[]>("build_whisperx_args", { config });
@@ -39,7 +44,9 @@ export function useTranscription() {
     }));
 
     try {
-      const command = Command.create("whisperx", args);
+      const command = pythonPath
+        ? Command.create(pythonPath, ["-m", "whisperx", ...args])
+        : Command.create("whisperx", args);
 
       command.on("close", (data) => {
         setState((prev) => {

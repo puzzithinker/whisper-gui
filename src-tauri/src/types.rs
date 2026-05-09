@@ -283,7 +283,17 @@ impl WhisperConfig {
 pub struct WhisperCheckResult {
     pub available: bool,
     pub path: Option<String>,
+    pub python_path: Option<String>,
+    pub fallback_available: bool,
     pub error: Option<String>,
+}
+
+/// Result of finding Python on the system
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PythonCheckResult {
+    pub found: bool,
+    pub path: Option<String>,
+    pub version: Option<String>,
 }
 
 /// Result of getting the default device

@@ -410,3 +410,137 @@ button:disabled {
   color: var(--text-muted);
   margin-top: 4px;
 }
+
+.install-dialog {
+  margin: 8px 0;
+}
+
+.install-card {
+  border: 1px solid var(--warning);
+  border-radius: var(--radius);
+  padding: 20px;
+  background: rgba(224, 175, 104, 0.06);
+}
+
+.install-card h2 {
+  color: var(--warning);
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.install-description {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.python-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.python-info .label {
+  font-weight: 600;
+  color: var(--success);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.python-info code {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.python-info .version {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.python-info.warning {
+  border: 1px solid var(--error);
+  background: rgba(247, 118, 142, 0.06);
+}
+
+.python-info.warning .label {
+  color: var(--error);
+}
+
+.python-info a {
+  color: var(--accent);
+}
+
+.install-command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #13141c;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.install-command code {
+  flex: 1;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.btn-copy {
+  background: var(--accent);
+  color: #1a1b26;
+  border: none;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-copy:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.fallback-note {
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.fallback-note code {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 12px;
+  background: #13141c;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--text-primary);
+}
+
+.btn-retry {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.btn-retry:hover {
+  background: var(--bg-hover);
+}

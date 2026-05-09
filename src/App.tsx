@@ -4,38 +4,41 @@ import { AudioInput } from "./components/AudioInput";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { LogViewer } from "./components/LogViewer";
 import { ResultPanel } from "./components/ResultPanel";
+import { InstallDialog } from "./components/InstallDialog";
 import { useTranscription } from "./hooks/useTranscription";
 import { useSettings } from "./hooks/useSettings";
-import { WhisperCheckResult, DEFAULT_CONFIG } from "./types";
+import { WhisperCheckResult, PythonCheckResult, DEFAULT_CONFIG } from "./types";
 import "./App.css";
 
 function App() {
   const { config, updateConfig, loaded } = useSettings();
   const { status, logs, start, cancel, reset } = useTranscription();
-  const [whisperAvailable, setWhisperAvailable] = useState<boolean | null>(null);
-  const [whisperPath, setWhisperPath] = useState<string | null>(null);
+  const [whisperCheck, setWhisperCheck] = useState<WhisperCheckResult | null>(null);
+  const [pythonCheck, setPythonCheck] = useState<PythonCheckResult | null>(null);
 
-  useEffect(() => {
-    invoke<WhisperCheckResult>("check_whisperx").then((result) => {
-      setWhisperAvailable(result.available);
-      setWhisperPath(result.path);
-    });
-  }, []);
+  const runChecks = async () => {
+    const [wResult, pResult] = await Promise.all([
+      invoke<WhisperCheckResult>("check_whisperx"),
+      invoke<PythonCheckResult>("check_python"),
+    ]);
+    setWhisperCheck(wResult);
+    setPythonCheck(pResult);
+  };
 
-  if (!loaded) {
+  useEffect(() => { runChecks(); }, []);
+
+  if (!loaded || !whisperCheck) {
     return <div className="app-loading">Loading...</div>;
   }
 
   const isRunning = status === "running";
-  const canStart = config.audio.trim() !== "" && !isRunning && whisperAvailable === true;
+  const canStart = config.audio.trim() !== "" && !isRunning && whisperCheck.available;
 
   const handleStart = () => {
-    start(config);
+    start({ config, pythonPath: whisperCheck.python_path });
   };
 
-  const handleCancel = () => {
-    cancel();
-  };
+  const handleCancel = () => { cancel(); };
 
   const handleReset = () => {
     reset();
@@ -47,15 +50,25 @@ function App() {
       <header className="app-header">
         <h1>WhisperX GUI</h1>
         <div className="whisper-status">
-          {whisperAvailable === null && <span className="checking">Checking whisperx...</span>}
-          {whisperAvailable === true && (
-            <span className="available">✓ whisperx available{whisperPath ? ` (${whisperPath})` : ""}</span>
-          )}
-          {whisperAvailable === false && (
-            <span className="unavailable">✗ whisperx not found — install with: pip install whisperx</span>
+          {whisperCheck.available ? (
+            <span className="available">
+              ✓ {whisperCheck.path
+                ? `whisperx available (${whisperCheck.path})`
+                : `whisperx available via ${whisperCheck.python_path} -m whisperx`}
+            </span>
+          ) : (
+            <span className="unavailable">✗ whisperx not found</span>
           )}
         </div>
       </header>
+
+      {!whisperCheck.available && (
+        <InstallDialog
+          whisperCheck={whisperCheck}
+          pythonCheck={pythonCheck}
+          onRetry={runChecks}
+        />
+      )}
 
       <main className="app-main">
         <AudioInput

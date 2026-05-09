@@ -160,7 +160,15 @@ export const LANGUAGES = [
 export interface WhisperCheckResult {
   available: boolean;
   path: string | null;
+  python_path: string | null;
+  fallback_available: boolean;
   error: string | null;
+}
+
+export interface PythonCheckResult {
+  found: boolean;
+  path: string | null;
+  version: string | null;
 }
 
 export type TranscriptionStatus = "idle" | "running" | "success" | "error" | "cancelled";
