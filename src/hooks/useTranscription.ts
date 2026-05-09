@@ -1,5 +1,7 @@
 import { Command, Child } from "@tauri-apps/plugin-shell";
+import { useState, useCallback } from "react";
 import { WhisperConfig, LogEntry, TranscriptionStatus } from "../types";
+import { invoke } from "@tauri-apps/api/core";
 
 interface TranscriptionState {
   status: TranscriptionStatus;
@@ -8,14 +10,26 @@ interface TranscriptionState {
 }
 
 export function useTranscription() {
-  const [state, setState] = React.useState<TranscriptionState>({
+  const [state, setState] = useState<TranscriptionState>({
     status: "idle",
     logs: [],
     child: null,
   });
 
   const start = useCallback(async (config: WhisperConfig) => {
-    const args = configToArgs(config);
+    let args: string[];
+    try {
+      args = await invoke<string[]>("build_whisperx_args", { config });
+    } catch (err) {
+      setState((prev) => ({
+        ...prev,
+        status: "error",
+        logs: [
+          { stream: "stderr", text: `Failed to build args: ${err}`, timestamp: Date.now() },
+        ],
+      }));
+      return;
+    }
 
     setState((prev) => ({
       ...prev,
@@ -94,33 +108,3 @@ export function useTranscription() {
 
   return { ...state, start, cancel, reset };
 }
-
-function configToArgs(config: WhisperConfig): string[] {
-  const args: string[] = [];
-
-  args.push(config.audio);
-  args.push("--model", config.model);
-
-  if (config.model_dir) args.push("--model_dir", config.model_dir);
-  args.push("--device", config.device);
-  args.push("--compute_type", config.compute_type);
-  if (config.output_dir) args.push("--output_dir", config.output_dir);
-  args.push("--output_format", config.output_format);
-  if (config.language) args.push("--language", config.language);
-  if (config.task === "translate") args.push("--task", "translate");
-  if (config.batch_size !== 8) args.push("--batch_size", String(config.batch_size));
-  if (config.chunk_size !== 30) args.push("--chunk_size", String(config.chunk_size));
-  if (config.align) args.push("--align");
-  if (config.diarize) args.push("--diarize");
-  if (config.min_speakers !== null) args.push("--min_speakers", String(config.min_speakers));
-  if (config.max_speakers !== null) args.push("--max_speakers", String(config.max_speakers));
-  if (config.highlight_words) args.push("--highlight_words");
-  if (config.max_line_width !== null) args.push("--max_line_width", String(config.max_line_width));
-  if (config.max_line_count !== null) args.push("--max_line_count", String(config.max_line_count));
-  if (config.interpolate_nans) args.push("--interpolate_nans");
-  if (config.return_char_alignments) args.push("--return_char_alignments");
-
-  return args;
-}
-
-import React, { useCallback } from "react";

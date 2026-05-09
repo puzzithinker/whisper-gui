@@ -8,7 +8,11 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![commands::check_whisperx, commands::get_default_device])
+        .invoke_handler(tauri::generate_handler![
+            commands::check_whisperx,
+            commands::get_default_device,
+            commands::build_whisperx_args
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

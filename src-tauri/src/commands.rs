@@ -1,9 +1,8 @@
 use tauri_plugin_shell::ShellExt;
 use which::which;
 
-use crate::types::{DefaultDevice, WhisperCheckResult};
+use crate::types::{DefaultDevice, WhisperCheckResult, WhisperConfig};
 
-/// Check if whisperx is available on the system PATH
 #[tauri::command]
 pub async fn check_whisperx() -> WhisperCheckResult {
     match which("whisperx") {
@@ -22,7 +21,6 @@ pub async fn check_whisperx() -> WhisperCheckResult {
     }
 }
 
-/// Detect if CUDA is available by trying to run nvidia-smi
 #[tauri::command]
 pub async fn get_default_device(app: tauri::AppHandle) -> DefaultDevice {
     match app
@@ -35,4 +33,9 @@ pub async fn get_default_device(app: tauri::AppHandle) -> DefaultDevice {
         Ok(output) if output.status.success() => DefaultDevice::Cuda,
         _ => DefaultDevice::Cpu,
     }
+}
+
+#[tauri::command]
+pub fn build_whisperx_args(config: WhisperConfig) -> Vec<String> {
+    config.to_args()
 }
