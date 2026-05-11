@@ -7,7 +7,8 @@ import { ResultPanel } from "./components/ResultPanel";
 import { InstallDialog } from "./components/InstallDialog";
 import { useTranscription } from "./hooks/useTranscription";
 import { useSettings } from "./hooks/useSettings";
-import { WhisperCheckResult, PythonCheckResult, FfmpegCheckResult, ConvertResult, DEFAULT_CONFIG, isVideoFile } from "./types";
+import { convertOutputToTraditional } from "./hooks/useChineseConversion";
+import { WhisperCheckResult, PythonCheckResult, FfmpegCheckResult, ConvertResult, DEFAULT_CONFIG, isVideoFile, LogEntry } from "./types";
 import "./App.css";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
   const [pythonCheck, setPythonCheck] = useState<PythonCheckResult | null>(null);
   const [ffmpegCheck, setFfmpegCheck] = useState<FfmpegCheckResult | null>(null);
   const [converting, setConverting] = useState(false);
+  const [conversionLogs, setConversionLogs] = useState<LogEntry[]>([]);
 
   const runChecks = async () => {
     const [wResult, pResult, fResult] = await Promise.all([
@@ -29,7 +31,47 @@ function App() {
     setFfmpegCheck(fResult);
   };
 
-  useEffect(() => { runChecks(); }, []);
+  useEffect(() => {
+    runChecks();
+  }, []);
+
+  useEffect(() => {
+    if (status !== "success") return;
+
+    const isChinese = config.language === "zh" || config.language === "Chinese" || !config.language;
+    if (!isChinese) return;
+
+    const doConversion = async () => {
+      setConversionLogs((prev) => [
+        ...prev,
+        { stream: "stdout", text: "Converting simplified Chinese → traditional Chinese...", timestamp: Date.now() },
+      ]);
+      try {
+        const result = await convertOutputToTraditional(
+          config.output_dir || null,
+          config.audio,
+        );
+        if (result.converted.length > 0) {
+          setConversionLogs((prev) => [
+            ...prev,
+            { stream: "stdout", text: `Converted to traditional Chinese: ${result.converted.join(", ")}`, timestamp: Date.now() },
+          ]);
+        } else {
+          setConversionLogs((prev) => [
+            ...prev,
+            { stream: "stdout", text: "No Chinese text found in output files to convert.", timestamp: Date.now() },
+          ]);
+        }
+      } catch (err) {
+        setConversionLogs((prev) => [
+          ...prev,
+          { stream: "stderr", text: `Chinese conversion failed: ${err}`, timestamp: Date.now() },
+        ]);
+      }
+    };
+
+    doConversion();
+  }, [status]);
 
   if (!loaded || !whisperCheck) {
     return <div className="app-loading">Loading...</div>;
@@ -68,8 +110,11 @@ function App() {
 
   const handleReset = () => {
     reset();
+    setConversionLogs([]);
     updateConfig({ ...DEFAULT_CONFIG, audio: "" });
   };
+
+  const allLogs = [...logs, ...conversionLogs];
 
   return (
     <div className="app">
@@ -137,7 +182,7 @@ function App() {
           )}
         </div>
 
-        <LogViewer logs={logs} status={status} />
+        <LogViewer logs={allLogs} status={status} />
 
         <ResultPanel
           status={status}

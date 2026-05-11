@@ -8,6 +8,13 @@
     "opener:default",
     "dialog:default",
     "store:default",
+    "fs:default",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-read-file",
+    "fs:allow-write-file",
+    "fs:allow-exists",
+    "fs:allow-read-dir",
     {
       "identifier": "shell:allow-spawn",
       "allow": [
