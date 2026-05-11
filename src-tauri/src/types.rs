@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
 
 /// Supported Whisper model sizes
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

@@ -23,32 +23,6 @@
       "csp": null
     }
   },
-  "plugins": {
-    "shell": {
-      "scope": [
-        {
-          "name": "whisperx",
-          "cmd": "whisperx",
-          "args": true
-        },
-        {
-          "name": "python",
-          "cmd": "python",
-          "args": true
-        },
-        {
-          "name": "python3",
-          "cmd": "python3",
-          "args": true
-        },
-        {
-          "name": "nvidia-smi",
-          "cmd": "nvidia-smi",
-          "args": true
-        }
-      ]
-    }
-  },
   "bundle": {
     "active": true,
     "targets": "all",

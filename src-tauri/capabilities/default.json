@@ -6,11 +6,19 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "shell:allow-spawn",
+    "dialog:default",
+    "store:default",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        { "name": "whisperx", "cmd": "whisperx", "args": true },
+        { "name": "python", "cmd": "python", "args": true },
+        { "name": "python3", "cmd": "python3", "args": true },
+        { "name": "nvidia-smi", "cmd": "nvidia-smi", "args": true }
+      ]
+    },
     "shell:allow-execute",
     "shell:allow-kill",
-    "shell:allow-stdin-write",
-    "dialog:default",
-    "store:default"
+    "shell:allow-stdin-write"
   ]
 }
