@@ -44,9 +44,10 @@ export function useTranscription() {
     }));
 
     try {
+      const env = { HF_HUB_OFFLINE: "0" };
       const command = pythonPath
-        ? Command.create(pythonPath, ["-m", "whisperx", ...args])
-        : Command.create("whisperx", args);
+        ? Command.create(pythonPath, ["-m", "whisperx", ...args], { env })
+        : Command.create("whisperx", args, { env });
 
       command.on("close", (data) => {
         setState((prev) => {
