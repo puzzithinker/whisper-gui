@@ -171,6 +171,27 @@ export interface PythonCheckResult {
   version: string | null;
 }
 
+export interface FfmpegCheckResult {
+  available: boolean;
+  path: string | null;
+  version: string | null;
+}
+
+export interface ConvertResult {
+  success: boolean;
+  output_path: string | null;
+  error: string | null;
+}
+
+export const AUDIO_EXTENSIONS = ["mp3", "wav", "flac", "m4a", "ogg", "wma", "aac", "opus", "webm"];
+export const VIDEO_EXTENSIONS = ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg", "3gp", "ts"];
+export const ALL_MEDIA_EXTENSIONS = [...AUDIO_EXTENSIONS, ...VIDEO_EXTENSIONS];
+
+export function isVideoFile(path: string): boolean {
+  const ext = path.split(".").pop()?.toLowerCase() || "";
+  return VIDEO_EXTENSIONS.includes(ext);
+}
+
 export type TranscriptionStatus = "idle" | "running" | "success" | "error" | "cancelled";
 
 export interface LogEntry {

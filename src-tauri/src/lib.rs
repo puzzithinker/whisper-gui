@@ -11,6 +11,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::check_whisperx,
             commands::check_python,
+            commands::check_ffmpeg,
+            commands::convert_to_audio,
             commands::get_default_device,
             commands::build_whisperx_args
         ])

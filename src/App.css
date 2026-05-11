@@ -544,3 +544,63 @@ button:disabled {
 .btn-retry:hover {
   background: var(--bg-hover);
 }
+
+.conversion-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 4px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.conversion-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.conversion-warning {
+  padding: 8px 12px;
+  margin-top: 4px;
+  background: rgba(247, 118, 142, 0.1);
+  border: 1px solid var(--error);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--error);
+}
+
+.conversion-warning a {
+  color: var(--accent);
+}
+
+.conversion-note {
+  padding: 8px 12px;
+  margin-top: 4px;
+  background: rgba(122, 162, 247, 0.08);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.ffmpeg-ok {
+  color: var(--success);
+  font-size: 12px;
+}
+
+.ffmpeg-missing {
+  color: var(--warning);
+  font-size: 12px;
+}

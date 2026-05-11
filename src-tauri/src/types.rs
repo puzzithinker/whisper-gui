@@ -295,6 +295,20 @@ pub struct PythonCheckResult {
     pub version: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FfmpegCheckResult {
+    pub available: bool,
+    pub path: Option<String>,
+    pub version: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConvertResult {
+    pub success: bool,
+    pub output_path: Option<String>,
+    pub error: Option<String>,
+}
+
 /// Result of getting the default device
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DefaultDevice {

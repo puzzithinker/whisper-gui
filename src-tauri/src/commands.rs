@@ -1,8 +1,9 @@
+use std::path::Path;
 use std::process::Command as StdCommand;
 use tauri_plugin_shell::ShellExt;
 use which::which;
 
-use crate::types::{DefaultDevice, PythonCheckResult, WhisperCheckResult, WhisperConfig};
+use crate::types::{ConvertResult, DefaultDevice, FfmpegCheckResult, PythonCheckResult, WhisperCheckResult, WhisperConfig};
 
 #[tauri::command]
 pub async fn check_whisperx() -> WhisperCheckResult {
@@ -132,5 +133,90 @@ fn format_whisperx_install_hint(python_info: &PythonCheckResult) -> String {
         _ => "whisperx not found and no Python installation detected.\n\
               Install Python from https://python.org, then: pip install whisperx"
             .to_string(),
+    }
+}
+
+#[tauri::command]
+pub fn check_ffmpeg() -> FfmpegCheckResult {
+    match which("ffmpeg") {
+        Ok(path) => {
+            let version = StdCommand::new(&path)
+                .args(["-version"])
+                .output()
+                .ok()
+                .and_then(|o| {
+                    String::from_utf8(o.stdout)
+                        .ok()
+                        .and_then(|s| s.lines().next().map(|l| l.to_string()))
+                });
+            FfmpegCheckResult {
+                available: true,
+                path: Some(path.to_string_lossy().to_string()),
+                version,
+            }
+        }
+        Err(_) => FfmpegCheckResult {
+            available: false,
+            path: None,
+            version: None,
+        },
+    }
+}
+
+#[tauri::command]
+pub fn convert_to_audio(input_path: String, output_dir: Option<String>) -> ConvertResult {
+    let input = Path::new(&input_path);
+    if !input.exists() {
+        return ConvertResult {
+            success: false,
+            output_path: None,
+            error: Some(format!("Input file not found: {input_path}")),
+        };
+    }
+
+    let stem = input
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("output");
+    let dir = match &output_dir {
+        Some(d) if !d.is_empty() => Path::new(d),
+        _ => input.parent().unwrap_or(Path::new(".")),
+    };
+
+    let output_path = dir.join(format!("{stem}.wav"));
+    let output_str = output_path.to_string_lossy().to_string();
+
+    let result = StdCommand::new("ffmpeg")
+        .args([
+            "-y",
+            "-i",
+            &input_path,
+            "-vn",
+            "-acodec",
+            "pcm_s16le",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            &output_str,
+        ])
+        .output();
+
+    match result {
+        Ok(output) if output.status.success() => ConvertResult {
+            success: true,
+            output_path: Some(output_str),
+            error: None,
+        },
+        Ok(output) => ConvertResult {
+            success: false,
+            output_path: None,
+            error: Some(String::from_utf8_lossy(&output.stderr).to_string()),
+        },
+        Err(e) => ConvertResult {
+            success: false,
+            output_path: None,
+            error: Some(format!("Failed to run ffmpeg: {e}")),
+        },
     }
 }
